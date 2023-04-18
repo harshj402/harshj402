@@ -1,0 +1,39 @@
+import gitlab
+import git
+import os
+
+# Replace with your GitLab username and repo name
+repo_name = "username/repo_name"
+
+# Replace with your GitLab access token
+access_token = "<your-access-token>"
+
+# Replace with your local directory path to clone the repo to
+local_dir = "/path/to/local/dir"
+
+# Replace with your GitLab SSH URL
+ssh_url = "git@gitlab.com:{}.git".format(repo_name)
+
+# Replace with the path to the directory tree with files to push
+dir_tree_path = "/path/to/dir/tree"
+
+# Set the environment variable for the SSH key path
+os.environ["GIT_SSH_COMMAND"] = "ssh -i /path/to/ssh/key"
+
+# Clone the repo using SSH-based access
+git.Repo.clone_from(ssh_url, local_dir)
+
+# Authenticate with the GitLab API using the access token
+gl = gitlab.Gitlab("https://gitlab.com", private_token=access_token)
+
+# Create a new project in GitLab
+project = gl.projects.create({'name': repo_name})
+
+# Push the directory tree with files to the GitLab repo
+repo = git.Repo(local_dir)
+repo.git.add(".")
+repo.git.commit(m='Initial commit')
+repo.git.push('origin', 'master')
+
+# Print a success message
+print("Directory tree with files successfully pushed to GitLab repo.")
