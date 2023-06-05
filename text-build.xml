@@ -1,0 +1,34 @@
+<project name="MyProject" default="run-linux-command" basedir=".">
+
+  <!-- Define the log file name -->
+  <property name="log.file" value="build.log" />
+
+  <!-- Define the maximum line length -->
+  <property name="max.line.length" value="80" />
+
+  <!-- Redirect output to the log file -->
+  <target name="redirect-output" description="Redirect output to log file">
+    <exec executable="your-command-name" output="${log.file}" />
+  </target>
+
+  <!-- Truncate lines that exceed the maximum length -->
+  <target name="truncate-lines" description="Truncate lines in the log file">
+    <property file="${log.file}" prefix="loglines" />
+
+    <!-- Define a regular expression to truncate lines -->
+    <propertyregex property="truncated.lines"
+                   input="${loglines}"
+                   regexp="^(.{0,${max.line.length}}).*"
+                   select="\1"
+                   override="true" />
+
+    <!-- Write the truncated lines back to the log file -->
+    <echo file="${log.file}" append="false">${truncated.lines}</echo>
+  </target>
+
+  <!-- Define the main target -->
+  <target name="run-linux-command" depends="redirect-output, truncate-lines">
+    <!-- Additional tasks and commands -->
+  </target>
+
+</project>
