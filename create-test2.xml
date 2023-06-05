@@ -1,0 +1,55 @@
+<project name="MyProject" default="run-linux-command" basedir=".">
+
+  <!-- Define the log file name -->
+  <property name="log.file" value="build.log" />
+
+  <!-- Define the maximum line length -->
+  <property name="max.line.length" value="80" />
+
+  <!-- Define the truncateLine Ant function -->
+  <scriptdef name="truncateLine" language="javascript">
+    <attribute name="input" />
+    <attribute name="length" />
+    <![CDATA[
+      var input = attributes.get("input");
+      var length = parseInt(attributes.get("length"), 10);
+      if (input.length > length) {
+        project.setNewProperty("truncated.line", input.substring(0, length));
+      } else {
+        project.setNewProperty("truncated.line", input);
+      }
+    ]]>
+  </scriptdef>
+
+  <!-- Redirect output to the log file -->
+  <target name="redirect-output" description="Redirect output to log file">
+    <exec executable="your-command-name" output="${log.file}" />
+  </target>
+
+  <!-- Truncate lines that exceed the maximum length -->
+  <target name="truncate-lines" description="Truncate lines in the log file">
+    <loadfile property="log.content" srcFile="${log.file}" />
+    <echo file="${log.file}" append="false">
+      <foreach list="${log.content}" delimiter="${line.separator}" target="truncate-line">
+        <param name="line" value="${foreach.item}" />
+      </foreach>
+    </echo>
+  </target>
+
+  <!-- Truncate individual line using the truncateLine function -->
+  <target name="truncate-line">
+    <script language="javascript">
+      <![CDATA[
+        var line = project.getProperty("line");
+        var maxLength = project.getProperty("max.line.length");
+        truncateLine(line, maxLength);
+      ]]>
+    </script>
+  </target>
+
+  <!-- Define the main target -->
+  <target name="run-linux-command" depends="redirect-output, truncate-lines">
+    <!-- Additional tasks and commands -->
+  </target>
+
+</project>
